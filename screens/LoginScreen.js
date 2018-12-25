@@ -6,7 +6,8 @@ import {
     Alert,
     View,
     TouchableOpacity,
-    AsyncStorage
+    AsyncStorage,
+    KeyboardAvoidingView
 } from 'react-native';
 
 import Colors from '../constants/Colors';
@@ -46,13 +47,13 @@ export default class LoginScreen extends React.Component {
             password: base64.encode(password)
         };
         let thisArrayUsers = [];
-    
+        
         this.getStoredItem('ttUList', (err, result) => {
             if (err) {
                 console.log('[buttonPress] get ttUList err: ', err);
             } else {
                 let rU = JSON.parse(result);
-            
+                
                 if (rU) {
                     rU = rU.filter((user) => {
                         return user.email !== thisUser.email
@@ -61,7 +62,7 @@ export default class LoginScreen extends React.Component {
                     thisArrayUsers = rU;
                 }
             }
-    
+            
             if (rememberMe) {
                 thisArrayUsers.push(thisUser);
                 this.setStoreItem(thisArrayUsers);
@@ -109,7 +110,7 @@ export default class LoginScreen extends React.Component {
             passwordIsValid = Validation.password.isValid(thisStates.password ? thisStates.password : this.state.password);
         
         thisStates.invalid = !emailIsValid || !passwordIsValid;
-    
+        
         if (emailIsValid) { thisStates.emailError = null }
         if (passwordIsValid) { thisStates.passwordError = null }
         
@@ -183,62 +184,64 @@ export default class LoginScreen extends React.Component {
         const { email, password, emailError, passwordError, invalid, rememberedUsers } = this.state;
         
         return (
-            <View style={styles.container}>
-                <View style={styles.imageContainer}>
-                    <Image style={styles.image}
-                           source={ require('../assets/images/Logo.png') }
-                    />
+            <KeyboardAvoidingView style={styles.container} behavior="padding">
+                <View style={styles.container}>
+                    <View style={styles.imageContainer}>
+                        <Image style={styles.image}
+                               source={ require('../assets/images/Logo.png') }
+                        />
+                    </View>
+                    
+                    <View style={styles.bottomView}>
+                        <Text style={styles.bottomViewLabel}>Email</Text>
+                        
+                        <TextField
+                            placeHolder={Placeholder.email}
+                            onChange={this.emailChange}
+                            value={email}
+                            onBlur={this.emailBlur}
+                            error={emailError}
+                            autoComplete={true}
+                            autoCompleteData={rememberedUsers}
+                            autoCompleteSearch={this.autoCompleteSearch}
+                        />
+                        
+                        <Text style={[styles.bottomViewLabel]}>Password</Text>
+                        
+                        <TextField
+                            placeHolder={Placeholder.password}
+                            secure={true}
+                            onChange={this.pwdChange}
+                            onBlur={this.pwdBlur}
+                            value={password}
+                            error={passwordError}
+                        />
+                        
+                        <TouchableOpacity
+                            onPress={this.buttonPress}
+                            disabled={invalid}
+                            style={[styles.marginTop10, invalid ? styles.disabledButtonStyle : null]} >
+                            <View
+                                style={styles.buttonStyle}>
+                                <Text
+                                    style={styles.buttonTextStyle}>
+                                    Sign In
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                        
+                        <CheckboxFormX
+                            style={{ height: 30, marginLeft: -20, marginTop: 10 }}
+                            dataSource={this.rememberMeData}
+                            itemShowKey="label"
+                            itemCheckedKey="value"
+                            iconSize={30}
+                            labelHorizontal={true}
+                            onChecked={(item) => this.onRememberMeClick(item)}
+                        />
+                    </View>
                 </View>
-                
-                <View style={styles.bottomView}>
-                    <Text style={styles.bottomViewLabel}>Email</Text>
-                    
-                    <TextField
-                        placeHolder={Placeholder.email}
-                        onChange={this.emailChange}
-                        value={email}
-                        onBlur={this.emailBlur}
-                        error={emailError}
-                        autoComplete={true}
-                        autoCompleteData={rememberedUsers}
-                        autoCompleteSearch={this.autoCompleteSearch}
-                    />
-                    
-                    <Text style={[styles.bottomViewLabel]}>Password</Text>
-                    
-                    <TextField
-                        placeHolder={Placeholder.password}
-                        secure={true}
-                        onChange={this.pwdChange}
-                        onBlur={this.pwdBlur}
-                        value={password}
-                        error={passwordError}
-                    />
-                    
-                    <TouchableOpacity
-                        onPress={this.buttonPress}
-                        disabled={invalid}
-                        style={[styles.marginTop10, invalid ? styles.disabledButtonStyle : null]} >
-                        <View
-                            style={styles.buttonStyle}>
-                            <Text
-                                style={styles.buttonTextStyle}>
-                                Sign In
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
-                    
-                    <CheckboxFormX
-                        style={{ height: 30, marginLeft: -20, marginTop: 10 }}
-                        dataSource={this.rememberMeData}
-                        itemShowKey="label"
-                        itemCheckedKey="value"
-                        iconSize={30}
-                        labelHorizontal={true}
-                        onChecked={(item) => this.onRememberMeClick(item)}
-                    />
-                </View>
-            </View>
+            </KeyboardAvoidingView>
         );
     }
 }
@@ -264,6 +267,7 @@ const base64 = require('base-64'),
             bottom: 30,
             paddingHorizontal: 20,
             paddingVertical: 20,
+            backgroundColor: '#ffffff'
         },
         bottomViewLabel: {
             fontSize: 17,
