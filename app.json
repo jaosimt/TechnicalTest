@@ -24,6 +24,8 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "description": "ReactNative Login Technical Test",
+    "githubUrl": "https://github.com/jaosimt/TechnicalTest.git"
   }
 }
