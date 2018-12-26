@@ -30,8 +30,6 @@ export default class LoginScreen extends React.Component {
             rememberedUsers: []
         };
         
-        this.buttonPress.bind(this);
-        
         this.rememberMeData = [
             {
                 label: 'Remember me',
@@ -101,10 +99,8 @@ export default class LoginScreen extends React.Component {
         if (dataIsObject) {
             thisStates.password = base64.decode(data.password)
         }
-        
-        if (email === '') {
-            thisStates.emailError = Validation.email.absent;
-        }
+    
+        thisStates.emailError = email === '' ? Validation.email.absent : null;
         
         const emailIsValid = Validation.email.isValid(email),
             passwordIsValid = Validation.password.isValid(thisStates.password ? thisStates.password : this.state.password);
@@ -116,19 +112,19 @@ export default class LoginScreen extends React.Component {
         
         this.setState(thisStates)
     };
+    
     pwdChange = (password) => {
         let thisStates = {
             password: password
         };
-        
-        if (password === '') {
-            thisStates.passwordError = Validation.password.absent;
-        }
-        
+    
+        thisStates.passwordError = password === '' ? Validation.password.absent : null;
+    
         thisStates.invalid = !Validation.email.isValid(this.state.email) || !Validation.password.isValid(password);
         
         this.setState(thisStates)
     };
+    
     emailBlur = () => {
         const { password, email } = this.state;
         if (!Validation.email.isValid(email)){
