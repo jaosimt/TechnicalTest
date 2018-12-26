@@ -260,7 +260,7 @@ const base64 = require('base-64'),
         bottomView: {
             width: '100%',
             position: 'absolute',
-            bottom: 30,
+            bottom: 0,
             paddingHorizontal: 20,
             paddingVertical: 20,
             backgroundColor: '#ffffff'
