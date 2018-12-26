@@ -1,8 +1,8 @@
 import React from "react";
 import {Animated, Keyboard} from "react-native";
+import PropTypes from 'prop-types';
 
 export default class DodgeKeyboard extends React.Component {
-    
     constructor(props) {
         super(props);
         
@@ -24,7 +24,7 @@ export default class DodgeKeyboard extends React.Component {
     keyboardDidShow = (event) => {
         Animated.parallel([
             Animated.timing(this.keyboardHeight, {
-                duration: 50,
+                duration: this.props.duration,
                 toValue: event.endCoordinates.height,
             })
         ]).start();
@@ -33,19 +33,39 @@ export default class DodgeKeyboard extends React.Component {
     keyboardDidHide = (event) => {
         Animated.parallel([
             Animated.timing(this.keyboardHeight, {
-                duration: 50,
+                duration: this.props.duration,
                 toValue: 0,
             })
         ]).start();
     };
     
     render(){
-        const {children, style, ...props} = this.props;
+        const {children, behavior} = this.props;
+        let styles = {
+            flex: 1
+        };
+        
+        if (behavior === 'padding') {
+            styles.paddingBottom = this.keyboardHeight;
+        } else {
+            // behaviour: position
+            styles.bottom = this.keyboardHeight;
+        }
+        
         return(
-            <Animated.View style={[{flex:1,alignItems:'center', bottom: this.keyboardHeight},style]} {...props}>
+            <Animated.View style={styles}>
                 {children}
             </Animated.View>
         );
     }
-    
 }
+
+DodgeKeyboard.propTypes = {
+    behavior: PropTypes.string,
+    duration: PropTypes.number
+};
+
+DodgeKeyboard.defaultProps = {
+    behavior: 'padding',
+    duration: 500 // milliseconds
+};

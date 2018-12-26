@@ -7,8 +7,7 @@ import {
     Text,
     View,
     TouchableOpacity,
-    AsyncStorage,
-    KeyboardAvoidingView
+    AsyncStorage
 } from 'react-native';
 
 import Colors from '../constants/Colors';
@@ -185,7 +184,7 @@ export default class LoginScreen extends React.Component {
         const { email, password, emailError, passwordError, invalid, rememberedUsers } = this.state;
         
         return (
-            <DodgeKeyboard>
+            <DodgeKeyboard duration={100} behavior={'position'}>
                 <View style={styles.container}>
                     <View style={styles.imageContainer}>
                         <Image style={styles.image}
@@ -252,10 +251,9 @@ const base64 = require('base-64'),
         container: {
             flex: 1,
             backgroundColor: Colors.backgroundColor,
-            width: Layout.window.width,
+            width: '100%',
             height: '100%',
-            paddingHorizontal: 10,
-            paddingVertical: 30,
+            padding: 20,
             alignItems: 'center',
             overflow: 'hidden'
         },
