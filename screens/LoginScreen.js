@@ -1,9 +1,10 @@
+'use strict';
+
 import React from 'react';
 import {
     Image,
     StyleSheet,
     Text,
-    Alert,
     View,
     TouchableOpacity,
     AsyncStorage,
@@ -16,27 +17,25 @@ import Validation from '../constants/Validation';
 import Placeholder from '../constants/Placeholder';
 import TextField from "../components/TextField";
 import CheckboxFormX from 'react-native-checkbox-form';
+import PropTypes from 'prop-types';
 
 export default class LoginScreen extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            email: '',
-            password: '',
-            emailError: null,
-            passwordError: null,
-            invalid: true,
-            rememberMe: true,
-            rememberedUsers: []
-        };
-        
-        this.rememberMeData = [
-            {
-                label: 'Remember me',
-                value: true
-            }
-        ];
-    }
+    state = {
+        email: '',
+        password: '',
+        emailError: null,
+        passwordError: null,
+        invalid: true,
+        rememberMe: true,
+        rememberedUsers: []
+    };
+    
+    rememberMeData = [
+        {
+            label: 'Remember me',
+            value: true
+        }
+    ];
     
     buttonPress = () => {
         const { email, password, rememberMe } = this.state;
@@ -63,16 +62,19 @@ export default class LoginScreen extends React.Component {
             
             if (rememberMe) {
                 thisArrayUsers.push(thisUser);
-                this.setStoreItem(thisArrayUsers);
+                this.setStoreItem(thisArrayUsers, () => {
+                    this.props.callback(true);
+                });
             } else if (thisArrayUsers.length) {
                 thisArrayUsers = thisArrayUsers.filter((user) => {
                     return user.email !== thisUser.email
                 });
-                this.setStoreItem(thisArrayUsers);
+                this.setStoreItem(thisArrayUsers, () => {
+                    this.props.callback(true);
+                });
             }
         });
         
-        Alert.alert('Login', 'Successfully Logged In', [{text: 'Close', style: 'close'}])
     };
     
     getStoredItem = (key, callback) => {
@@ -81,10 +83,11 @@ export default class LoginScreen extends React.Component {
         });
     };
     
-    setStoreItem = (users) => {
+    setStoreItem = (users, callback) => {
         AsyncStorage.setItem('ttUList', JSON.stringify(users), (error) => {
-            console.log('AsyncStorage.setItem: ', error || 'saved');
-            this.setState({rememberedUsers: users})
+            console.log('AsyncStorage.setItem: ', error || JSON.stringify(users));
+            
+            if (callback) { callback() }
         });
     };
     
@@ -247,29 +250,38 @@ const base64 = require('base-64'),
         container: {
             flex: 1,
             backgroundColor: Colors.backgroundColor,
+            width: '100%',
+            height: '100%',
+            paddingHorizontal: 10,
+            paddingVertical: 30,
+            alignItems: 'center',
+            overflow: 'hidden'
         },
+        
         imageContainer: {
             alignItems: 'center',
             height: Layout.isSmallDevice ? '45%' : '50%',
         },
+        
         image: {
             position: 'absolute',
             bottom: 0,
             resizeMode: 'contain',
         },
+        
         bottomView: {
             width: '100%',
             position: 'absolute',
-            bottom: 0,
-            paddingHorizontal: 20,
-            paddingVertical: 20,
+            bottom: 10,
             backgroundColor: '#ffffff'
         },
+        
         bottomViewLabel: {
             fontSize: 17,
             color: 'rgba(96,100,109, 1)',
             marginBottom: 5
         },
+        
         inputStyles: {
             height: 40,
             borderColor: Colors.themeColor,
@@ -277,25 +289,34 @@ const base64 = require('base-64'),
             borderRadius: 5,
             paddingHorizontal: 10
         },
+        
         buttonStyle: {
             borderRadius: 5,
             paddingVertical: 10,
             backgroundColor: Colors.themeColor,
             alignItems: 'center'
         },
+        
         buttonTextStyle: {
             alignItems: 'center',
             color: Colors.buttonTextColor,
             fontSize: 20,
             fontWeight: 'bold'
         },
+        
         disabledButtonStyle: {
             opacity: 0.2
         },
+        
         marginBottom20: {
             marginBottom: 20
         },
+        
         marginTop10: {
             marginTop: 10
         }
     });
+
+LoginScreen.propTypes = {
+    callback: PropTypes.func.isRequired
+};

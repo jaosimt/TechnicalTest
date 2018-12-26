@@ -7,7 +7,6 @@ import {
     Text,
     TextInput,
     View,
-    ScrollView,
     ListView
 } from 'react-native';
 
