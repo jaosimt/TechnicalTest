@@ -53,7 +53,7 @@ export default class LoginScreen extends React.Component {
                 
                 if (rU) {
                     rU = rU.filter((user) => {
-                        return user.email !== thisUser.email
+                        return user.email.toLowerCase().trim() !== thisUser.email.toLowerCase().trim()
                     });
                     
                     thisArrayUsers = rU;
@@ -66,10 +66,11 @@ export default class LoginScreen extends React.Component {
                     this.props.callback(true);
                 });
             } else if (thisArrayUsers.length) {
-                thisArrayUsers = thisArrayUsers.filter((user) => {
-                    return user.email !== thisUser.email
-                });
                 this.setStoreItem(thisArrayUsers, () => {
+                    this.props.callback(true);
+                });
+            } else {
+                AsyncStorage.clear(() => {
                     this.props.callback(true);
                 });
             }
@@ -102,7 +103,7 @@ export default class LoginScreen extends React.Component {
         if (dataIsObject) {
             thisStates.password = base64.decode(data.password)
         }
-    
+        
         thisStates.emailError = email === '' ? Validation.email.absent : null;
         
         const emailIsValid = Validation.email.isValid(email),
@@ -120,9 +121,9 @@ export default class LoginScreen extends React.Component {
         let thisStates = {
             password: password
         };
-    
+        
         thisStates.passwordError = password === '' ? Validation.password.absent : null;
-    
+        
         thisStates.invalid = !Validation.email.isValid(this.state.email) || !Validation.password.isValid(password);
         
         this.setState(thisStates)
