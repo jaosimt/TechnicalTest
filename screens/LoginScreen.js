@@ -184,7 +184,7 @@ export default class LoginScreen extends React.Component {
         const { email, password, emailError, passwordError, invalid, rememberedUsers } = this.state;
         
         return (
-            <KeyboardAvoidingView style={styles.container} behavior="padding">
+            <KeyboardAvoidingView style={styles.container} behavior="position">
                 <View style={styles.container}>
                     <View style={styles.imageContainer}>
                         <Image style={styles.image}
@@ -251,7 +251,7 @@ const base64 = require('base-64'),
         container: {
             flex: 1,
             backgroundColor: Colors.backgroundColor,
-            width: '100%',
+            width: Layout.window.width,
             height: '100%',
             paddingHorizontal: 10,
             paddingVertical: 30,
