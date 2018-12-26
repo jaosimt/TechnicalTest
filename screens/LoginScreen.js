@@ -18,6 +18,7 @@ import Placeholder from '../constants/Placeholder';
 import TextField from "../components/TextField";
 import CheckboxFormX from 'react-native-checkbox-form';
 import PropTypes from 'prop-types';
+import DodgeKeyboard from "../components/DodgeKeyboard";
 
 export default class LoginScreen extends React.Component {
     state = {
@@ -184,7 +185,7 @@ export default class LoginScreen extends React.Component {
         const { email, password, emailError, passwordError, invalid, rememberedUsers } = this.state;
         
         return (
-            <KeyboardAvoidingView style={styles.container} behavior="position">
+            <DodgeKeyboard>
                 <View style={styles.container}>
                     <View style={styles.imageContainer}>
                         <Image style={styles.image}
@@ -241,7 +242,7 @@ export default class LoginScreen extends React.Component {
                         />
                     </View>
                 </View>
-            </KeyboardAvoidingView>
+            </DodgeKeyboard>
         );
     }
 }
