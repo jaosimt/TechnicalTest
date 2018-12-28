@@ -182,7 +182,25 @@ const setStoreItem = (users, callback) => {
     });
 };
 
+const isReachable = (url, timeOut, callback) => {
+    const timeout = new Promise((resolve, reject) => {
+        setTimeout(reject, timeOut, 'request timed out');
+    });
+    
+    const request = fetch(url);
+    
+    return Promise
+        .race([timeout, request])
+        .then(json => {
+            if (isFunction(callback)) { callback(true) }
+        })
+        .catch(err => {
+            if (isFunction(callback)) {callback(false)}
+        })
+};
+
 export default {
+    isReachable: isReachable,
     getStoredItem: getStoredItem,
     setStoreItem: setStoreItem,
     removeStoredItem: removeStoredItem,

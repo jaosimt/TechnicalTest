@@ -7,6 +7,11 @@ import Util from './utils/sImoUtils';
 import Main from './Main';
 
 import {updateUser, checkUserAuth} from "./actions/userActions";
+import { baseApiURL } from "./actions/axiosRequests";
+
+Util.isReachable(baseApiURL, 5000, (res) => {
+    console.log("isReachable: ", res);
+});
 
 Util.getSessionUser((user) => {
     if (!Util.isEmpty(user)) {
