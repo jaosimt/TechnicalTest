@@ -18,6 +18,7 @@ import TextField from "../components/TextField";
 import CheckboxFormX from 'react-native-checkbox-form';
 import PropTypes from 'prop-types';
 import DodgeKeyboard from "../components/DodgeKeyboard";
+import Util from '../utils/sImoUtils';
 
 export default class LoginScreen extends React.Component {
     state = {
@@ -45,7 +46,7 @@ export default class LoginScreen extends React.Component {
         };
         let thisArrayUsers = [];
         
-        this.getStoredItem('ttUList', (err, result) => {
+        Util.getStoredItem('ttUList', (err, result) => {
             if (err) {
                 console.log('[buttonPress] get ttUList err: ', err);
             } else {
@@ -62,11 +63,11 @@ export default class LoginScreen extends React.Component {
             
             if (rememberMe) {
                 thisArrayUsers.push(thisUser);
-                this.setStoreItem(thisArrayUsers, () => {
+                Util.setStoreItem(thisArrayUsers, () => {
                     this.props.callback(true);
                 });
             } else if (thisArrayUsers.length) {
-                this.setStoreItem(thisArrayUsers, () => {
+                Util.setStoreItem(thisArrayUsers, () => {
                     this.props.callback(true);
                 });
             } else {
@@ -76,20 +77,6 @@ export default class LoginScreen extends React.Component {
             }
         });
         
-    };
-    
-    getStoredItem = (key, callback) => {
-        AsyncStorage.getItem(key, (err, result) => {
-            callback(err, result)
-        });
-    };
-    
-    setStoreItem = (users, callback) => {
-        AsyncStorage.setItem('ttUList', JSON.stringify(users), (error) => {
-            console.log('AsyncStorage.setItem: ', error || JSON.stringify(users));
-            
-            if (callback) { callback() }
-        });
     };
     
     emailChange = (data) => {
@@ -162,7 +149,7 @@ export default class LoginScreen extends React.Component {
     onRememberMeClick = (item) => this.setState({rememberMe: item[0].value});
     
     componentDidMount() {
-        this.getStoredItem('ttUList', (err, result) => {
+        Util.getStoredItem('ttUList', (err, result) => {
             if (err) {
                 console.log('[componentDidMount] get ttUList err: ', err);
             } else {
