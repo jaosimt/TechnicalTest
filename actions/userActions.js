@@ -2,6 +2,7 @@
 
 import { axPOST } from "./axiosRequests";
 import { isFunction, timeStamp } from "../utils/sImoUtils";
+import { removeStoredItem, setStoreItem, isEmpty } from '../utils/sImoUtils';
 
 export const UPDATE_USER = 'users:updateUser';
 export const SHOW_ERROR = 'users:showError';
@@ -11,9 +12,9 @@ const base64 = require('base-64');
 export function updateUser(newUser) {
     if (!isEmpty(newUser)) {
         newUser.logged_at = timeStamp();
-        store.set(base64.encode('user'), base64.encode(JSON.stringify(newUser)));
+        setStoreItem(base64.encode('user'), base64.encode(JSON.stringify(newUser)));
     } else {
-        store.remove(base64.encode('user'));
+        removeStoredItem(base64.encode('user'));
     }
     
     return {
@@ -25,7 +26,7 @@ export function updateUser(newUser) {
 }
 
 export function showError(error){
-    store.remove(base64.encode('user'));
+    removeStoredItem(base64.encode('user'));
     
     return {
         type: SHOW_ERROR,
@@ -105,11 +106,11 @@ export function checkUserAuth(sessionUser, callback){
 export function userLogin(data){
     return dispatch => {
         axPOST('/user/login', data, (response) => {
-            console.log("response: ", response);
+            console.log("userLogin -> response: ", response);
             
             dispatch(updateUser(response.data))
         }, (error) => {
-            console.log("error: ", error);
+            console.log("userLogin -> error: ", error);
             
             dispatch(showError(error))
         })

@@ -9,9 +9,9 @@ export default {
     
     password: {
         absent: 'please enter a password',
-        invalid: 'please use at least 6 - 12 characters',
+        invalid: 'please use at least 1 - 12 characters',
         isValid: (password) => {
-            return password.length >= 6 && password.length <= 12
+            return password.length >= 1 && password.length <= 12
         }
     }
 }

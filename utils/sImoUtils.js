@@ -137,23 +137,23 @@ const getSessionUser = (callback) => {
     
     getStoredItem(userKey, (err, result) => {
         if (!isEmpty(result)) {
-            sessionUser = JSON.parse(base64.decode(sessionUser));
+            //sessionUser = JSON.parse(base64.decode(result));
         }
-        
+
         //  ToDo: Session Expire should be handled in the backend
         if (sessionUser && sessionUser.logged_at) {
             const diff = (timeStamp() - sessionUser.logged_at) / 1000 / 60 / 60;
-            
+
             if (diff > 1) {
                 console.log("getSessionUser ->  expired session (1hr)");
                 removeStoredItem(userKey);
-                if (isFunction(callback)) { return null }
+                if (isFunction(callback)) { callback(null) } else { return null }
             }
-    
-            if (isFunction(callback)) { return sessionUser }
+
+            if (isFunction(callback)) { callback(sessionUser) } else { return sessionUser }
         } else {
             console.log("getSessionUser -> no user session");
-            if (isFunction(callback)) { return null }
+            if (isFunction(callback)) { callback(null) } else { return null }
         }
     });
 };
@@ -174,11 +174,11 @@ const removeStoredItem = (key, callback) => {
     });
 };
 
-const setStoreItem = (users, callback) => {
-    AsyncStorage.setItem('ttUList', JSON.stringify(users), (error) => {
-        console.log('AsyncStorage.setItem: ', error || JSON.stringify(users));
-        
-        if (isFunction(callback)) { callback() }
+const setStoreItem = (key, value, callback) => {
+    const storeValue = JSON.stringify(value);
+    AsyncStorage.setItem(key, storeValue, (error) => {
+        console.log('AsyncStorage.setItem: ', error || key);
+        if (isFunction(callback)) { callback(error) }
     });
 };
 
@@ -192,14 +192,14 @@ const isReachable = (url, timeOut, callback) => {
     return Promise
         .race([timeout, request])
         .then(json => {
-            if (isFunction(callback)) { callback(true) }
+            if (isFunction(callback)) { callback(true) } else { return true }
         })
         .catch(err => {
-            if (isFunction(callback)) {callback(false)}
+            if (isFunction(callback)) {callback(false)}  else { return false }
         })
 };
 
-export default {
+module.exports = {
     isReachable: isReachable,
     getStoredItem: getStoredItem,
     setStoreItem: setStoreItem,

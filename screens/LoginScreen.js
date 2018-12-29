@@ -7,6 +7,7 @@ import {
     Text,
     View,
     TouchableOpacity,
+    Alert,
     AsyncStorage
 } from 'react-native';
 
@@ -18,8 +19,15 @@ import TextField from "../components/TextField";
 import CheckboxFormX from 'react-native-checkbox-form';
 import PropTypes from 'prop-types';
 import DodgeKeyboard from "../components/DodgeKeyboard";
-import Util from '../utils/sImoUtils';
+import { getStoredItem, setStoreItem, isEmpty, isArray } from '../utils/sImoUtils';
+import { userLogin, userReset } from '../actions/userActions';
 
+import {connect} from "react-redux"
+@connect (store => {
+    return {
+        user: store.user
+    }
+})
 export default class LoginScreen extends React.Component {
     state = {
         email: '',
@@ -39,44 +47,11 @@ export default class LoginScreen extends React.Component {
     ];
     
     buttonPress = () => {
-        const { email, password, rememberMe } = this.state;
-        const thisUser = {
-            email: email,
-            password: base64.encode(password)
-        };
-        let thisArrayUsers = [];
+        const { email, password } = this.state;
         
-        Util.getStoredItem('ttUList', (err, result) => {
-            if (err) {
-                console.log('[buttonPress] get ttUList err: ', err);
-            } else {
-                let rU = JSON.parse(result);
-                
-                if (rU) {
-                    rU = rU.filter((user) => {
-                        return user.email.toLowerCase().trim() !== thisUser.email.toLowerCase().trim()
-                    });
-                    
-                    thisArrayUsers = rU;
-                }
-            }
-            
-            if (rememberMe) {
-                thisArrayUsers.push(thisUser);
-                Util.setStoreItem(thisArrayUsers, () => {
-                    this.props.callback(true);
-                });
-            } else if (thisArrayUsers.length) {
-                Util.setStoreItem(thisArrayUsers, () => {
-                    this.props.callback(true);
-                });
-            } else {
-                AsyncStorage.clear(() => {
-                    this.props.callback(true);
-                });
-            }
-        });
-        
+        this.props.dispatch(userLogin(
+            {userName: email, password: password})
+        );
     };
     
     emailChange = (data) => {
@@ -149,25 +124,90 @@ export default class LoginScreen extends React.Component {
     onRememberMeClick = (item) => this.setState({rememberMe: item[0].value});
     
     componentDidMount() {
-        Util.getStoredItem('ttUList', (err, result) => {
+        getStoredItem('ttUList', (err, result) => {
             if (err) {
                 console.log('[componentDidMount] get ttUList err: ', err);
             } else {
+                console.log('getStoredItem->ttUList: ', result);
+
                 const rU = JSON.parse(result);
                 if (rU) {
-                    this.setState({rememberedUsers: rU})
+                    if (!isArray(rU)) {
+                        AsyncStorage.clear(()=>{
+                            this.setState({rememberedUsers: []})
+                        });
+                    } else {
+                        this.setState({rememberedUsers: rU})
+                    }
                 }
             }
         })
     }
     
+    componentDidUpdate() {
+        if (this.props.user && this.props.user.error) {
+            Alert.alert('Login', this.props.user.error.message, [{text: 'Close', style: 'close'}]);
+            
+            this.props.dispatch(userReset());
+        } else if (!isEmpty(this.props.user) && !this.props.isAuthenticated) {
+            this.props.callback(true);
+            let thisArrayUsers = [];
+            
+            const thisUser = {
+                email: this.state.email,
+                password: base64.encode(this.state.password)
+            };
+            
+            getStoredItem('ttUList', (err, result) => {
+                if (err) {
+                    console.log('[buttonPress] get ttUList err: ', err);
+                } else {
+                    let rU = JSON.parse(result);
+                    
+                    if (rU) {
+                        rU = rU.filter((user) => {
+                            return user.email.toLowerCase().trim() !== thisUser.email.toLowerCase().trim()
+                        });
+                        
+                        thisArrayUsers = rU;
+                    }
+                }
+                
+                if (this.state.rememberMe) {
+                    thisArrayUsers.push(thisUser);
+                    setStoreItem('ttUList', thisArrayUsers, () => {
+                        this.props.callback(true);
+                    });
+                } else if (thisArrayUsers.length > 0) {
+                    setStoreItem('ttUList', thisArrayUsers, () => {
+                        this.props.callback(true);
+                    });
+                } else {
+                    AsyncStorage.clear(() => {
+                        this.props.callback(true);
+                    });
+                }
+            });
+        }
+    }
+    
     autoCompleteSearch = (searchedText) => {
+        if (this.state.rememberedUsers.length < 1) {
+            return []
+        }
+        
         return this.state.rememberedUsers.filter(function(user) {
             return user.email.toLowerCase().indexOf(searchedText.toLowerCase()) > -1;
         });
     };
     
     render() {
+        console.log('LogScreen->render');
+        console.log('-----------------');
+        
+        console.log('LoginScreen props: ', this.props);
+        console.log('LoginScreen state: ', this.state);
+        
         const { email, password, emailError, passwordError, invalid, rememberedUsers } = this.state;
         
         return (
@@ -305,5 +345,11 @@ const base64 = require('base-64'),
     });
 
 LoginScreen.propTypes = {
-    callback: PropTypes.func.isRequired
+    callback: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    isAuthenticated: PropTypes.bool
+};
+
+LoginScreen.defaultProps = {
+    isAuthenticated: false
 };

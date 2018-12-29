@@ -3,22 +3,18 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import store from './store';
-import Util from './utils/sImoUtils';
+import { isReachable, getSessionUser, isEmpty} from './utils/sImoUtils';
 import Main from './Main';
 
 import {updateUser, checkUserAuth} from "./actions/userActions";
 import { baseApiURL } from "./actions/axiosRequests";
 
-Util.isReachable(baseApiURL, 5000, (res) => {
-    console.log("isReachable: ", res);
-});
+isReachable(baseApiURL, 5000).then(res => console.log("is " + baseApiURL + " Reachable: ", res));
 
-Util.getSessionUser((user) => {
-    if (!Util.isEmpty(user)) {
+getSessionUser((user) => {
+    if (!isEmpty(user)) {
         checkUserAuth(user, (response) => {
-            console.log('response: ', response);
-            
-            if (response && response.data && response.data.isAuthenticated && !Util.isEmpty(response.data.user)) {
+            if (response && response.data && response.data.isAuthenticated && !isEmpty(response.data.user)) {
                 store.dispatch(updateUser(response.data.user));
             }
         });

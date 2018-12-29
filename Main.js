@@ -7,18 +7,16 @@ import LoginScreen from "./screens/LoginScreen";
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { userReset } from "./actions/userActions";
-
+import { Alert } from 'react-native';
 
 class Main extends React.Component {
     state = {
         isLoadingComplete: false,
         isAuthenticated: false
     };
+    logInAlert = false;
     
     render() {
-        console.log('App props: ', this.props);
-        console.log('App isAuthenticated: ', this.state.isAuthenticated);
-        
         if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
             return (
                 <AppLoading
@@ -30,19 +28,29 @@ class Main extends React.Component {
         } else {
             return (
                 this.state.isAuthenticated ? <HomeScreen logOut={this.logOut}/> :
-                    <LoginScreen callback={this.loginCallback}/>
+                    <LoginScreen
+                        isAuthenticated={this.state.isAuthenticated}
+                        dispatch={this.props.dispatch}
+                        callback={this.loginCallback}
+                    />
             )
         }
     }
     
     loginCallback = (authenticated) => {
         this.setState({isAuthenticated: authenticated});
-        if (authenticated) {
-            Alert.alert('Login', 'Successfully Logged In', [{text: 'Close', style: 'close'}])
+        if (authenticated && !this.logInAlert) {
+            this.logInAlert = true;
+            Alert.alert('Login', 'Successfully Logged In',
+                [{ text: 'Close', onPress: () => this.logInAlert = false }],
+                { cancelable: false })
         }
     };
     
-    logOut = () => this.setState({isAuthenticated: false});
+    logOut = () => {
+        this.setState({isAuthenticated: false});
+        this.props.dispatch(userReset());
+    };
     
     loadResourcesAsync = async () => {
         return Promise.all([

@@ -3,7 +3,8 @@
 import axios from "axios";
 import { timeStamp, isFunction } from "../utils/sImoUtils";
 
-export const baseApiURL = 'http://localhost:7777/api';
+//export const baseApiURL = 'http://localhost:7777/api';
+export const baseApiURL = 'http://172.20.10.3:7777/api';
 
 export function dataHandler(response) {
     if (response && response.status) {
