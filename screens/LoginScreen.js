@@ -19,8 +19,9 @@ import TextField from "../components/TextField";
 import CheckboxFormX from 'react-native-checkbox-form';
 import PropTypes from 'prop-types';
 import DodgeKeyboard from "../components/DodgeKeyboard";
-import { getStoredItem, setStoreItem, isEmpty, isArray } from '../utils/sImoUtils';
+import { getStoredItem, setStoreItem, isEmpty, isArray, after } from '../utils/sImoUtils';
 import { userLogin, userReset } from '../actions/userActions';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 import {connect} from "react-redux"
 @connect (store => {
@@ -36,7 +37,8 @@ export default class LoginScreen extends React.Component {
         passwordError: null,
         invalid: true,
         rememberMe: true,
-        rememberedUsers: []
+        rememberedUsers: [],
+        spinner: false
     };
     
     rememberMeData = [
@@ -49,9 +51,8 @@ export default class LoginScreen extends React.Component {
     buttonPress = () => {
         const { email, password } = this.state;
         
-        this.props.dispatch(userLogin(
-            {userName: email, password: password})
-        );
+        this.props.dispatch(userLogin({userName: email, password: password}));
+        this.setState({spinner: true})
     };
     
     emailChange = (data) => {
@@ -148,6 +149,7 @@ export default class LoginScreen extends React.Component {
         if (this.props.user && this.props.user.error) {
             Alert.alert('Login', this.props.user.error.message, [{text: 'Close', style: 'close'}]);
             
+            this.setState({spinner: false});
             this.props.dispatch(userReset());
         } else if (!isEmpty(this.props.user) && !this.props.isAuthenticated) {
             this.props.callback(true);
@@ -208,11 +210,16 @@ export default class LoginScreen extends React.Component {
         console.log('LoginScreen props: ', this.props);
         console.log('LoginScreen state: ', this.state);
         
-        const { email, password, emailError, passwordError, invalid, rememberedUsers } = this.state;
+        const { spinner, email, password, emailError, passwordError, invalid, rememberedUsers } = this.state;
         
         return (
             <DodgeKeyboard duration={100} behavior={'position'}>
-                <View style={styles.container}>
+                <Spinner
+                    visible={spinner}
+                    textContent={'Logging you in...'}
+                    textStyle={styles.spinnerTextStyle}
+                />
+                <View style={styles.container} disabled={true}>
                     <View style={styles.imageContainer}>
                         <Image style={styles.image}
                                source={ require('../assets/images/Logo.png') }
@@ -341,6 +348,9 @@ const base64 = require('base-64'),
         
         marginTop10: {
             marginTop: 10
+        },
+        spinnerTextStyle: {
+            color: '#FFF'
         }
     });
 

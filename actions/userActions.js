@@ -103,16 +103,22 @@ export function checkUserAuth(sessionUser, callback){
     }
 }
 
-export function userLogin(data){
+export function userLogin(data, callback){
     return dispatch => {
         axPOST('/user/login', data, (response) => {
             console.log("userLogin -> response: ", response);
             
-            dispatch(updateUser(response.data))
+            dispatch(updateUser(response.data));
+            if (isFunction(callback)) {
+                callback(true);
+            }
         }, (error) => {
             console.log("userLogin -> error: ", error);
             
-            dispatch(showError(error))
+            dispatch(showError(error));
+            if (isFunction(callback)) {
+                callback(false);
+            }
         })
     }
 }
